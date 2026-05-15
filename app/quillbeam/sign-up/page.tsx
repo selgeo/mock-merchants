@@ -14,7 +14,7 @@ export default function QuillbeamSignUp() {
     setError(null);
     const click_id =
       typeof window !== "undefined"
-        ? localStorage.getItem("__selgeo_click_id")
+        ? sessionStorage.getItem("__selgeo_cid")
         : null;
     const res = await fetch("/api/quillbeam/track-lead", {
       method: "POST",

@@ -1,25 +1,32 @@
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import Stripe from "stripe";
+"use client";
+import { useEffect, useState } from "react";
 
-export default async function QuillbeamUpgrade() {
-  const stripe = new Stripe(process.env.QUILLBEAM_STRIPE_SK!);
-  const cookieStore = await cookies();
-  const click_id = cookieStore.get("__selgeo_click_id")?.value;
+export default function QuillbeamUpgrade() {
+  const [error, setError] = useState<string | null>(null);
 
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+  useEffect(() => {
+    const click_id = sessionStorage.getItem("__selgeo_cid");
+    void (async () => {
+      const res = await fetch("/api/quillbeam/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ click_id }),
+      });
+      if (!res.ok) {
+        setError("Checkout failed. Try again.");
+        return;
+      }
+      const { url } = (await res.json()) as { url: string };
+      window.location.href = url;
+    })();
+  }, []);
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [
-      { price: process.env.QUILLBEAM_STRIPE_PRO_PRICE_ID!, quantity: 1 },
-    ],
-    success_url: `${baseUrl}/quillbeam/dashboard`,
-    cancel_url: `${baseUrl}/quillbeam/pricing`,
-    client_reference_id: click_id,
-  });
-
-  redirect(session.url!);
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-white text-neutral-900">
+      <div className="text-center">
+        <p className="text-lg">Redirecting to checkout…</p>
+        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      </div>
+    </main>
+  );
 }
