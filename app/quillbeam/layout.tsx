@@ -15,6 +15,7 @@ export default function QuillbeamLayout({ children }: { children: React.ReactNod
       <Script
         src={process.env.NEXT_PUBLIC_SELGEO_SNIPPET_URL}
         data-merchant={process.env.NEXT_PUBLIC_QUILLBEAM_MERCHANT_KEY}
+        data-api-url={process.env.NEXT_PUBLIC_SELGEO_API_URL}
         strategy="afterInteractive"
       />
     </>
