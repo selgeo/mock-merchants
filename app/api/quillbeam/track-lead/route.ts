@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
     },
     body: JSON.stringify({
       event_type: "lead",
-      external_id: email,
+      external_transaction_id: `lead:${email}`,
+      prospect_email: email,
       amount_cents: 0,
       click_id: click_id ?? undefined,
     }),
