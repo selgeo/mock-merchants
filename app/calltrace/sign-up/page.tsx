@@ -4,9 +4,9 @@ import Link from "next/link";
 import { AudioLines } from "lucide-react";
 
 // Mock OAuth: visual element only — submission still goes through email backend.
-// Real OAuth deferred to #086. Clicking "Continue with GitHub" prompts the visitor
-// for a GitHub handle, then submits a synthetic e-mail (<handle>@calltrace-mock.dev)
-// to the same /api/calltrace/track-lead endpoint as the email path.
+// Real OAuth deferred to #086. Clicking "Continue with GitHub" auto-submits a
+// unique synthetic e-mail (github-<timestamp>-<random>@calltrace-mock.dev) so each
+// click attributes as a distinct lead in Selgeo without surfacing a prompt dialog.
 //
 // GitHub logo: inline SVG (Lucide v1 dropped brand icons for trademark reasons).
 function GithubIcon({ className }: { className?: string }) {
@@ -53,18 +53,8 @@ export default function CalltraceSignUp() {
   }
 
   async function handleGithubClick() {
-    // Mock OAuth flow: prompt for a GitHub handle and synthesise an e-mail.
-    // Real OAuth deferred to #086 — track-lead still needs an e-mail to identify the lead.
-    const handle = window.prompt("Mock GitHub OAuth — enter your GitHub handle:");
-    if (!handle) {
-      return;
-    }
-    const safeHandle = handle.trim().replace(/[^a-zA-Z0-9-]/g, "").toLowerCase();
-    if (!safeHandle) {
-      setError("Please enter a valid GitHub handle.");
-      return;
-    }
-    await submitLead(`${safeHandle}@calltrace-mock.dev`);
+    const unique = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    await submitLead(`github-${unique}@calltrace-mock.dev`);
   }
 
   return (
